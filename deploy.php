@@ -256,8 +256,20 @@ task('deploy', [
 		run('php {{release_path}}/' . trim(get('bin_dir'), '/') . '/console cache:warmup  --env={{env}} --no-debug');
 	})->desc('Warm up cache');
 	
+	
+	/**
+	 * Remove app_dev.php files
+	 */
+	task('deploy:clear_controllers', function () {
+		run("rm -f {{release_path}}/web/app_*.php");
+		run("rm -f {{release_path}}/web/config.php");
+	})->setPrivate();
+	
+	after('deploy:update_code', 'deploy:clear_controllers');
+	
+	
     'deploy:symlink',
-				
+					
 	/**
 	 * Create symlink to last release.
 	 */
@@ -286,3 +298,23 @@ task('deploy', [
 	})->desc('Cleaning up old releases');
 	
 ])->desc('Deploy your project');
+
+
+/**
+ * Main task
+ */
+task('deploy', [
+    'deploy:prepare',
+    'deploy:release',
+    'deploy:update_code',
+    'deploy:create_cache_dir',
+    'deploy:shared',
+    'deploy:writable',
+    'deploy:assets',
+    'deploy:vendors',
+    'deploy:assetic:dump',
+    'deploy:cache:warmup',
+    'deploy:symlink',
+    'cleanup',
+])->desc('Deploy your project');
+after('deploy', 'success');
