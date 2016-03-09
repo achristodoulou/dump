@@ -230,6 +230,8 @@ task('deploy', [
 			$composer = 'php composer.phar';
 		}
 		$composerEnvVars = env('env_vars') ? 'export ' . env('env_vars') . ' &&' : '';
+		
+		#env('composer_options', 'install --no-dev --verbose --prefer-dist --optimize-autoloader --no-progress --no-interaction');
 		run("cd {{release_path}} && $composerEnvVars $composer {{composer_options}}");
 	})->desc('Installing vendors');
 	
